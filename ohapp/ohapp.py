@@ -8,8 +8,8 @@ from contextlib import closing
 DATABASE = '/tmp/ohapp.db'
 DEBUG = True
 SECRET_KEY = 'development key'
-USERNAME = 'nexusapoorvacus'
-PASSWORD = 'spopow95'
+USERNAME = 'admin'
+PASSWORD = 'default'
 
 mode = 0
 
