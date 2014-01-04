@@ -19,7 +19,6 @@
         <dd><input type=submit value="Help me!">
       </dl>
     </form>
-  {% endif %}
 
   <form action="{{ url_for('general_delete') }}">
     <input type="submit" value="Delete">
@@ -43,4 +42,18 @@
     <li><em>Unbelievable.  No entries here so far</em>
   {% endfor %}
   </ul>
+
+  {% else %}
+  <ul class=entries>
+  {% for entry in entries %}
+    <li><h2>{{ entry.Name }}</h2>{{ entry.Description|safe }}
+    <div align="right">{{ entry.Category|safe }}</div>
+    </form>
+
+  {% else %}
+    <li><em>Unbelievable.  No entries here so far</em>
+  {% endfor %}
+  </ul>
+
+  {% endif %}
 {% endblock %}

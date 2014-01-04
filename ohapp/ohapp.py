@@ -44,38 +44,37 @@ def connect_db():
 def changemode(m):
 	global mode
 	mode = m
-	if session.logged_in:
-		return redirect(url_for('show_entries'))
-	return redirect(url_for('show_entries_logout'))
+	return redirect(url_for('show_entries'))
+
+def sort(entries):
+    for i in range(len(entries)):
+        for j in range(i + 1, len(entries)):
+            if entries[i]["Category"]< entries[j]["Category"]:
+                entries[i], entries[j] = entries[j], entries[i]
+    return entries
 
 #The view function will pass the entries as dicts to the show_entries.html template and return the rendered one
-@app.route('/logged_in')
+@app.route('/')
 def show_entries():
-	def sort(entries):
-		    for i in range(len(entries)):
-		        for j in range(i + 1, len(entries)):
-		            if entries[i]["Category"]< entries[j]["Category"]:
-		                entries[i], entries[j] = entries[j], entries[i]
-		    return entries
 	cur = g.db.execute('select Name, Description, Category, id from entries order by id desc')
 	entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3]) for row in cur.fetchall()][::-1]
 	if mode == "Category":
 		entries = sort(entries)
 	return render_template('show_entries.html', entries=entries)
 
-@app.route('/')
-def show_entries_logout():
-	def sort(entries):
-		    for i in range(len(entries)):
-		        for j in range(i + 1, len(entries)):
-		            if entries[i]["Category"]< entries[j]["Category"]:
-		                entries[i], entries[j] = entries[j], entries[i]
-		    return entries
-	cur = g.db.execute('select Name, Description, Category, id from entries order by id desc')
-	entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3]) for row in cur.fetchall()][::-1]
-	if mode == "Category":
-		entries = sort(entries)
-	return render_template('show_entries_logout.html', entries=entries)
+# @app.route('/logged_in')
+# def show_entries_logout():
+# 	def sort(entries):
+# 		    for i in range(len(entries)):
+# 		        for j in range(i + 1, len(entries)):
+# 		            if entries[i]["Category"]< entries[j]["Category"]:
+# 		                entries[i], entries[j] = entries[j], entries[i]
+# 		    return entries
+# 	cur = g.db.execute('select Name, Description, Category, id from entries order by id desc')
+# 	entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3]) for row in cur.fetchall()][::-1]
+# 	if mode == "Category":
+# 		entries = sort(entries)
+# 	return render_template('show_entries_logout.html', entries=entries)
 
 @app.route('/entries')
 def entries():
@@ -134,7 +133,7 @@ def login():
 def logout():
 	session.pop('logged_in', None)
 	flash('You were logged out')
-	return redirect(url_for('show_entries_logout'))
+	return redirect(url_for('show_entries'))
 
 #fires up server if we want to run this as a stand alone application
 if __name__ == '__main__':
