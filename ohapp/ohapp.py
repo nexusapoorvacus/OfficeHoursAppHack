@@ -1,7 +1,7 @@
 # all the imports
 import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, \
-	 abort, render_template, flash
+	 abort, render_template, flash, jsonify
 from contextlib import closing
 
 # configuration - can be put in a different config files
@@ -47,11 +47,11 @@ def changemode(m):
 	return redirect(url_for('show_entries'))
 
 def sort(entries):
-    for i in range(len(entries)):
-        for j in range(i + 1, len(entries)):
-            if entries[i]["Category"]< entries[j]["Category"]:
-                entries[i], entries[j] = entries[j], entries[i]
-    return entries
+	for i in range(len(entries)):
+		for j in range(i + 1, len(entries)):
+			if entries[i]["Category"]< entries[j]["Category"]:
+				entries[i], entries[j] = entries[j], entries[i]
+	return entries
 
 #The view function will pass the entries as dicts to the show_entries.html template and return the rendered one
 @app.route('/')
@@ -61,20 +61,6 @@ def show_entries():
 	if mode == "Category":
 		entries = sort(entries)
 	return render_template('show_entries.html', entries=entries)
-
-# @app.route('/logged_in')
-# def show_entries_logout():
-# 	def sort(entries):
-# 		    for i in range(len(entries)):
-# 		        for j in range(i + 1, len(entries)):
-# 		            if entries[i]["Category"]< entries[j]["Category"]:
-# 		                entries[i], entries[j] = entries[j], entries[i]
-# 		    return entries
-# 	cur = g.db.execute('select Name, Description, Category, id from entries order by id desc')
-# 	entries = [dict(Name=row[0], Description=row[1], Category=row[2], id=row[3]) for row in cur.fetchall()][::-1]
-# 	if mode == "Category":
-# 		entries = sort(entries)
-# 	return render_template('show_entries_logout.html', entries=entries)
 
 @app.route('/entries')
 def entries():
@@ -108,6 +94,17 @@ def general_delete():
 def delete_student(entry_id):
 	if not session.get('logged_in'):
 		abort(401)
+	g.db.execute('delete from entries where id=' + str(entry_id))
+	g.db.commit()
+	flash('The student was deleted')
+	return redirect(url_for('show_entries'))
+
+@app.route('/helpedbystudent/<int:entry_id>/', methods=["POST"])
+def helpedbystudent(entry_id):
+	if not session.get('logged_in'):
+		abort(401)
+	peer_name = request.form["peername"]
+	print(peer_name)
 	g.db.execute('delete from entries where id=' + str(entry_id))
 	g.db.commit()
 	flash('The student was deleted')

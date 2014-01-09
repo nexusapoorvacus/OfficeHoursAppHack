@@ -30,13 +30,36 @@
     <input type="submit" value="Sort By Category">
   </form>
 
-  <ul class=entries>
+   <ul class=entries>
   {% for entry in entries %}
     <li><h2>{{ entry.Name }}</h2>{{ entry.Description|safe }}
     <div align="right">{{ entry.Category|safe }}</div>
-    <form action="{{ url_for('delete_student', entry_id = entry.id) }}">
-      <input type="submit" value="Delete">
-    </form>
+
+    {% if session.logged_in %}
+<form action="{{ url_for('delete_student', entry_id = entry.id) }}">
+        <input type="submit" value="Delete">
+      </form>
+
+      <script type=text/javascript>
+        function popupPeerHelp()
+        {
+          var peer = prompt("Enter the name of the peer who helped you:");
+          if (peer != null)
+          {
+            document.getElementById('peername').value = peer;
+            alert("Good job" + peer);
+            $("#peername").load("{{ url_for('helpedbystudent', entry_id = entry.id) }}");
+          }
+        }
+      </script>
+
+      <form action="/helpedbystudent/{{ entry.id }}/" method="post" align="right">
+        <p>
+          <input hidden id="peername" type="text" name="peername"></input>
+        </p>
+          <button id="peerhelped" onclick="popupPeerHelp()">Helped By Peer</button>
+      </form>
+    {% endif %}
 
   {% else %}
     <li><em>Unbelievable.  No entries here so far</em>
@@ -44,8 +67,9 @@
   </ul>
 
   {% else %}
-  <ul class=entries>
+    <ul class=entries>
   {% for entry in entries %}
+    <form>
     <li><h2>{{ entry.Name }}</h2>{{ entry.Description|safe }}
     <div align="right">{{ entry.Category|safe }}</div>
     </form>
